@@ -448,7 +448,180 @@ class PolicyGradient:
         discounted_ep_rs /= np.std(discounted_ep_rs)
         return discounted_ep_rs
 
+class Actor(object):
+    def __init__(self, sess, n_features, n_actions, lr=0.001):
+        np.random.seed(2)
+        tf.set_random_seed(2)
 
+        self.sess = sess
+
+        self.s = tf.placeholder(tf.float32, [1, n_features], "state")
+        self.a = tf.placeholder(tf.int32, None, "act")
+        self.td_error = tf.placeholder(tf.float32, None, "td_error")  # TD_error
+
+        with tf.variable_scope('Actor'):
+            l1 = tf.layers.dense(
+                inputs=self.s,
+                units=20,    # number of hidden units
+                activation=tf.nn.relu,
+                kernel_initializer=tf.random_normal_initializer(0., .1),    # weights
+                bias_initializer=tf.constant_initializer(0.1),  # biases
+                name='l1'
+            )
+
+            self.acts_prob = tf.layers.dense(
+                inputs=l1,
+                units=n_actions,    # output units
+                activation=tf.nn.softmax,   # get action probabilities
+                kernel_initializer=tf.random_normal_initializer(0., .1),  # weights
+                bias_initializer=tf.constant_initializer(0.1),  # biases
+                name='acts_prob'
+            )
+
+        with tf.variable_scope('exp_v'):
+            log_prob = tf.log(self.acts_prob[0, self.a])
+            self.exp_v = tf.reduce_mean(log_prob * self.td_error)  # advantage (TD_error) guided loss
+
+        with tf.variable_scope('train'):
+            self.train_op = tf.train.AdamOptimizer(lr).minimize(-self.exp_v)  # minimize(-exp_v) = maximize(exp_v)
+
+    def learn(self, s, a, td):
+        s = s[np.newaxis, :]
+        feed_dict = {self.s: s, self.a: a, self.td_error: td}
+        _, exp_v = self.sess.run([self.train_op, self.exp_v], feed_dict)
+        return exp_v
+
+    def choose_action(self, s):
+        s = s[np.newaxis, :]
+        probs = self.sess.run(self.acts_prob, {self.s: s})   # get probabilities for all actions
+        return np.random.choice(np.arange(probs.shape[1]), p=probs.ravel())   # return a int
+
+GAMMA = 0.9     # reward discount in TD error
+
+class Critic(object):
+    def __init__(self, sess, n_features, lr=0.01):
+        np.random.seed(2)
+        tf.set_random_seed(2)
+
+        self.sess = sess
+
+        self.s = tf.placeholder(tf.float32, [1, n_features], "state")
+        self.v_ = tf.placeholder(tf.float32, [1, 1], "v_next")
+        self.r = tf.placeholder(tf.float32, None, 'r')
+
+        with tf.variable_scope('Critic'):
+            l1 = tf.layers.dense(
+                inputs=self.s,
+                units=20,  # number of hidden units
+                activation=tf.nn.relu,  # None
+                # have to be linear to make sure the convergence of actor.
+                # But linear approximator seems hardly learns the correct Q.
+                kernel_initializer=tf.random_normal_initializer(0., .1),  # weights
+                bias_initializer=tf.constant_initializer(0.1),  # biases
+                name='l1'
+            )
+
+            self.v = tf.layers.dense(
+                inputs=l1,
+                units=1,  # output units
+                activation=None,
+                kernel_initializer=tf.random_normal_initializer(0., .1),  # weights
+                bias_initializer=tf.constant_initializer(0.1),  # biases
+                name='V'
+            )
+
+        with tf.variable_scope('squared_TD_error'):
+            self.td_error = self.r + GAMMA * self.v_ - self.v
+            self.loss = tf.square(self.td_error)    # TD_error = (r+gamma*V_next) - V_eval
+        with tf.variable_scope('train'):
+            self.train_op = tf.train.AdamOptimizer(lr).minimize(self.loss)
+
+    def learn(self, s, r, s_):
+        s, s_ = s[np.newaxis, :], s_[np.newaxis, :]
+
+        v_ = self.sess.run(self.v, {self.s: s_})
+        td_error, _ = self.sess.run([self.td_error, self.train_op],
+                                          {self.s: s, self.v_: v_, self.r: r})
+        return td_error
+
+
+GAMMA = 0.9     # reward discount
+TAU = 0.01      # soft replacement
+MEMORY_CAPACITY = 10000
+LR_A = 0.001    # learning rate for actor
+LR_C = 0.002    # learning rate for critic
+BATCH_SIZE = 32
+
+class DDPG(object):
+    def __init__(self, a_dim, s_dim, a_bound,):
+        self.memory = np.zeros((MEMORY_CAPACITY, s_dim * 2 + a_dim + 1), dtype=np.float32)
+        self.pointer = 0
+        self.sess = tf.Session()
+
+        self.a_dim, self.s_dim, self.a_bound = a_dim, s_dim, a_bound,
+        self.S = tf.placeholder(tf.float32, [None, s_dim], 's')
+        self.S_ = tf.placeholder(tf.float32, [None, s_dim], 's_')
+        self.R = tf.placeholder(tf.float32, [None, 1], 'r')
+
+        self.a = self._build_a(self.S,)
+        q = self._build_c(self.S, self.a, )
+        a_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='Actor')
+        c_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='Critic')
+        ema = tf.train.ExponentialMovingAverage(decay=1 - TAU)          # soft replacement
+
+        def ema_getter(getter, name, *args, **kwargs):
+            return ema.average(getter(name, *args, **kwargs))
+
+        target_update = [ema.apply(a_params), ema.apply(c_params)]      # soft update operation
+        a_ = self._build_a(self.S_, reuse=True, custom_getter=ema_getter)   # replaced target parameters
+        q_ = self._build_c(self.S_, a_, reuse=True, custom_getter=ema_getter)
+
+        a_loss = - tf.reduce_mean(q)  # maximize the q
+        self.atrain = tf.train.AdamOptimizer(LR_A).minimize(a_loss, var_list=a_params)
+
+        with tf.control_dependencies(target_update):    # soft replacement happened at here
+            q_target = self.R + GAMMA * q_
+            td_error = tf.losses.mean_squared_error(labels=q_target, predictions=q)
+            self.ctrain = tf.train.AdamOptimizer(LR_C).minimize(td_error, var_list=c_params)
+
+        self.sess.run(tf.global_variables_initializer())
+
+    def choose_action(self, s):
+        return self.sess.run(self.a, {self.S: s[np.newaxis, :]})[0]
+
+    def learn(self):
+        indices = np.random.choice(MEMORY_CAPACITY, size=BATCH_SIZE)
+        bt = self.memory[indices, :]
+        bs = bt[:, :self.s_dim]
+        ba = bt[:, self.s_dim: self.s_dim + self.a_dim]
+        br = bt[:, -self.s_dim - 1: -self.s_dim]
+        bs_ = bt[:, -self.s_dim:]
+
+        self.sess.run(self.atrain, {self.S: bs})
+        self.sess.run(self.ctrain, {self.S: bs, self.a: ba, self.R: br, self.S_: bs_})
+
+    def store_transition(self, s, a, r, s_):
+        transition = np.hstack((s, a, [r], s_))
+        index = self.pointer % MEMORY_CAPACITY  # replace the old memory with new memory
+        self.memory[index, :] = transition
+        self.pointer += 1
+
+    def _build_a(self, s, reuse=None, custom_getter=None):
+        trainable = True if reuse is None else False
+        with tf.variable_scope('Actor', reuse=reuse, custom_getter=custom_getter):
+            net = tf.layers.dense(s, 30, activation=tf.nn.relu, name='l1', trainable=trainable)
+            a = tf.layers.dense(net, self.a_dim, activation=tf.nn.tanh, name='a', trainable=trainable)
+            return tf.multiply(a, self.a_bound, name='scaled_a')
+
+    def _build_c(self, s, a, reuse=None, custom_getter=None):
+        trainable = True if reuse is None else False
+        with tf.variable_scope('Critic', reuse=reuse, custom_getter=custom_getter):
+            n_l1 = 30
+            w1_s = tf.get_variable('w1_s', [self.s_dim, n_l1], trainable=trainable)
+            w1_a = tf.get_variable('w1_a', [self.a_dim, n_l1], trainable=trainable)
+            b1 = tf.get_variable('b1', [1, n_l1], trainable=trainable)
+            net = tf.nn.relu(tf.matmul(s, w1_s) + tf.matmul(a, w1_a) + b1)
+            return tf.layers.dense(net, 1, trainable=trainable)  # Q(s,a)
 
 
 
