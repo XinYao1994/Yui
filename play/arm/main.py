@@ -14,7 +14,7 @@ except ImportError:
     print('No import')
 
 # global parameters
-MAX_EPISODES = 900
+MAX_EPISODES = 1000
 MAX_EP_STEPS = 200
 ON_TRAIN = True
 ON_TRAIN = False
@@ -39,9 +39,10 @@ A3C
 PPO
 '''
 rl = ArmDDPG(a_dim, s_dim, a_bound)
-
 def train():
+    succ_con = 0
     # start training
+    rl.restore()
     for i in range(MAX_EPISODES):
         s = env.reset()
         ep_r = 0.
@@ -62,8 +63,11 @@ def train():
             #print(done)
             if done or j == MAX_EP_STEPS-1:
                 print('Ep: %i | %s | ep_r: %.1f | steps: %i' % (i, '---' if not done else 'done', ep_r, j))
+                if done:
+                    succ_con = succ_con + 1
                 break
     rl.save()
+    print("Success Rate: "+succ_con/10.0+"%")
 
 def eval():
     rl.restore()

@@ -7,7 +7,7 @@ Using:
 Tensorflow: 1.0
 gym: 0.8.0
 """
-
+import os
 import numpy as np
 import tensorflow as tf
 
@@ -709,10 +709,18 @@ class ArmDDPG(object):
 
     def save(self):     # store
         saver = tf.train.Saver()
-        saver.save(self.sess, './params', write_meta_graph=False)
+        saver.save(self.sess, './play/arm/params', write_meta_graph=False)
 
     def restore(self):  # load
-        saver = tf.train.Saver()
-        saver.restore(self.sess, './params')
-
+        if os.path.exists("./play/arm/checkpoint"):
+            saver = tf.train.Saver()
+            saver.restore(self.sess, './play/arm/params')
+        '''
+        try:
+            saver = tf.train.Saver()
+            saver.restore(self.sess, './play/arm/params')
+        finally:
+            # do noting
+            print("Fail to load old parameters")
+        '''
 
