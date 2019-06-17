@@ -148,6 +148,8 @@ class ArmEnv(object):
         return s, r, done
         
     def reset(self):
+        self.goal['x'] = np.random.rand()*400.
+        self.goal['y'] = np.random.rand()*400.
         self.arm_info['r'] = 2 * np.pi * np.random.rand(2)
         self.on_goal = 0
         (a1l, a2l) = self.arm_info['l']  # radius, arm length

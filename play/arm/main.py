@@ -14,9 +14,10 @@ except ImportError:
     print('No import')
 
 # global parameters
-MAX_EPISODES = 900000000
+MAX_EPISODES = 900
 MAX_EP_STEPS = 200
 ON_TRAIN = True
+ON_TRAIN = False
 
 # init env
 env = ArmEnv()
@@ -45,7 +46,7 @@ def train():
         s = env.reset()
         ep_r = 0.
         for j in range(MAX_EP_STEPS):
-            env.render()
+            # env.render()
             a = rl.choose_action(s)
             s_, r, done = env.step(a)
 
@@ -64,19 +65,15 @@ def train():
                 break
     rl.save()
 
-
 def eval():
     rl.restore()
     env.render()
     env.viewer.set_vsync(True)
+    s = env.reset()
     while True:
-        s = env.reset()
-        for _ in range(200):
-            env.render()
-            a = rl.choose_action(s)
-            s, r, done = env.step(a)
-            if done:
-                break
+        env.render()
+        a = rl.choose_action(s)
+        s, r, done = env.step(a)
 
 
 if ON_TRAIN:
