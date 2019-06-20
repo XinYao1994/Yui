@@ -16,7 +16,7 @@ class BitcoinTradingEnv(gym.Env):
                            initial_balance=10000,
                            serial=False):
         super(BitcoinTradingEnv, self).__init__()
-        self.df = df.dropna().reseat_index()
+        self.df = df.dropna().reset_index()
         self.lookback_window_size = lookback_window_size
         self.initial_balance = initial_balance
         self.commission = commission

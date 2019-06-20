@@ -10,7 +10,7 @@ import pandas as pd
 get data from https://www.kaggle.com/mczielinski/bitcoin-historical-data
 '''
 
-df = pd.read_csv('./data/bitstamp.csv')
+df = pd.read_csv('./invest/bitcoin/data/bitstamp.csv')
 df = df.sort_values('Timestamp')
 
 slice_point = int(len(df) - 50000)
