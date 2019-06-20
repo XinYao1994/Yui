@@ -67,7 +67,7 @@ def train():
                     succ_con = succ_con + 1
                 break
     rl.save()
-    print("Success Rate: "+succ_con/10.0+"%")
+    print("Success Rate: "+str(succ_con/10.0)+"%")
 
 def eval():
     rl.restore()
