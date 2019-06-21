@@ -3,6 +3,7 @@ import gym
 from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import DummyVecEnv
 from stable_baselines import PPO2
+import tensorflow as tf
 
 from env import BitcoinTradingEnv
 import pandas as pd
@@ -31,9 +32,9 @@ obs = test_env.reset()
 for i in range(50000):
     action, _states = model.predict(obs)
     obs, rewards, done, info = test_env.step(action)
-    test_env.render(mode="system", title="BTC")
+    test_env.render(mode="human", title="BTC")
 
-test_env.close()
+#test_env.close()
 
 
 
