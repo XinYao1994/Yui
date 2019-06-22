@@ -5,7 +5,6 @@ import tensorflow_datasets as tfds
 tf.enable_eager_execution()
 # pip3 install -q tensorflow-datasets
 # https://github.com/tensorflow/datasets/blob/master/docs/datasets.md
-# subwords8k is supported in tf2.0
 
 imdb, info = tfds.load("imdb_reviews", with_info=True, as_supervised=True)
 
@@ -61,12 +60,29 @@ tf.compat.v1.disable_eager_execution()
 
 import keras
 
+'''
 model = keras.Sequential([
     keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length),
     keras.layers.Flatten(),
     keras.layers.Dense(6, activation='relu'),
     keras.layers.Dense(1, activation='sigmoid')
 ])
+
+model = keras.Sequential([
+    keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length),
+    keras.layers.Bidirectional(keras.layers.LSTM(32)), # LSTM -> GRU
+    keras.layers.Dense(24, activation='relu'),
+    keras.layers.Dense(1, activation='sigmoid')
+])
+'''
+model = keras.Sequential([
+    keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length),
+    keras.layers.Conv1D(128, 5, activation='relu'),
+    keras.layers.GlobalMaxPooling1D(),
+    keras.layers.Dense(6, activation='relu'),
+    keras.layers.Dense(1, activation='sigmoid')
+])
+
 model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
 model.summary()
 

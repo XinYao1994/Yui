@@ -43,7 +43,7 @@ print(padded.shape)
 
 vocab_size = 10000
 embedding_dim = 16
-max_length = 32
+max_length = 120
 trunc_type = 'post'
 padding_type = 'post'
 oov_tok = "<OOV>"
@@ -68,7 +68,7 @@ testing_padded = pad_sequences(testing_sequences, maxlen=max_length,
                                padding=padding_type, truncating=trunc_type)
 
 import keras
-
+'''
 model = keras.Sequential([
     keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length),
     # keras.layers.Flatten(),
@@ -76,12 +76,29 @@ model = keras.Sequential([
     keras.layers.Dense(24, activation='relu'),
     keras.layers.Dense(1, activation='sigmoid')
 ])
+'''
+model = keras.Sequential([
+    keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length),
+    keras.layers.Bidirectional(keras.layers.LSTM(32)),
+    keras.layers.Dense(24, activation='relu'),
+    keras.layers.Dense(1, activation='sigmoid')
+])
+'''
+model = keras.Sequential([
+    keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length),
+    keras.layers.Conv1D(128, 5, activation='relu'),
+    keras.layers.GlobalMaxPooling1D(),
+    keras.layers.Dense(24, activation='relu'),
+    keras.layers.Dense(1, activation='sigmoid')
+])
+'''
+
 model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
 model.summary()
 
-num_epochs = 30
+num_epochs = 50
 history = model.fit(training_padded, training_labels, epochs=num_epochs, 
-                    validation_data=(testing_padded, testing_labels), verbose=2)
+                    validation_data=(testing_padded, testing_labels), verbose=1)
 
 
 import matplotlib.pyplot as plt
@@ -97,4 +114,4 @@ def plot_graphs(history, string):
 plot_graphs(history, "acc")
 plot_graphs(history, "loss")
 
-
+# model.save("test.h5")

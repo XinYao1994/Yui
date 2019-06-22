@@ -28,6 +28,16 @@ model = keras.Sequential([
     keras.layers.Dense(6, activation='relu'),
     keras.layers.Dense(1, activation='sigmoid')
 ])
+'''
+model = keras.Sequential([
+    keras.layers.Embedding(tokenizer.vocab_size, embedding_dim),
+    keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True)),
+    keras.layers.Bidirectional(keras.layers.LSTM(32)),
+    keras.layers.Dense(64, activation='relu'),
+    keras.layers.Dense(1, activation='sigmoid')
+])
+'''
+
 model.summary()
 
 num_epochs = 10
