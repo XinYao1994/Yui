@@ -19,12 +19,12 @@ sen = [
     'there is a big car',
     'there is a big cat',
     'there is a big dog',
-] # increasing the words by default, but will change the coding methods -> need transfer learning
+] 
 tokenizer.fit_on_texts(sen)
 
 word_index = tokenizer.word_index
 sequences = tokenizer.texts_to_sequences(sentences)
-
+# increasing the words by default, but will change the coding methods -> need transfer learning
 padded = pad_sequences(sequences, padding='post', maxlen=5)
 # padded = pad_sequences(sequences, padding='post', truncating='post', maxlen=5)
 
