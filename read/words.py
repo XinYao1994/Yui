@@ -13,7 +13,16 @@ sentences = [
 tokenizer = Tokenizer(num_words = 100, oov_token="<OOV>")
 tokenizer.fit_on_texts(sentences)
 word_index = tokenizer.word_index
+print(word_index)
 
+sen = [
+    'there is a big car',
+    'there is a big cat',
+    'there is a big dog',
+] # increasing the words by default, but will change the coding methods -> need transfer learning
+tokenizer.fit_on_texts(sen)
+
+word_index = tokenizer.word_index
 sequences = tokenizer.texts_to_sequences(sentences)
 
 padded = pad_sequences(sequences, padding='post', maxlen=5)

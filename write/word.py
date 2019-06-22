@@ -44,7 +44,7 @@ model = Sequential()
 model.add(Embedding(total_words, 64, input_length=max_sequence_len-1))
 model.add(Bidirectional(LSTM(20)))
 model.add(Dense(total_words, activation='softmax'))
-model.compile(loss='binary_crossentropy',optimizer='adam', metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
 '''
 model = Sequential()
 model.add(Embedding(total_words, 100, input_length=max_sequence_len-1))
@@ -52,7 +52,7 @@ model.add(Bidirectional(LSTM(150)))
 model.add(Dense(total_words, activation='softmax'))
 adam = Adam(lr=0.01)
 
-model.compile(loss='binary_crossentropy',optimizer=adam, metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy',optimizer=adam, metrics=['accuracy'])
 history = model.fit(xs, ys, epochs=100, verbose=1)
 
 import matplotlib.pyplot as plt
