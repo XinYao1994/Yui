@@ -39,7 +39,7 @@ hparams = model.default_hparams()
 with open(os.path.join(models_dir, model_name, 'hparams.json')) as f:
     hparams.override_from_dict(json.load(f))
 
-length = 20
+length = 600
 
 if length is None:
     length = hparams.n_ctx // 2
@@ -68,7 +68,7 @@ with tf.Session(graph=tf.Graph()) as sess:
     while index <= length:
         # header = all_text[-b_len:]
         # context_tokens = enc.encode(header)
-        context_tokens = enc.encode(all_text)[-b_len:]
+        context_tokens = enc.encode(all_text)
         generated = 0
         for _ in range(nsamples // batch_size):
             out = sess.run(output, feed_dict={
