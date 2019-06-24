@@ -8,7 +8,7 @@ __pycache__/
 
 invest/bitcoin/data/*
 tensorboard/
-
+write/model/*
 # Distribution / packaging
 .Python
 build/
