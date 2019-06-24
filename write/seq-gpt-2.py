@@ -63,11 +63,12 @@ with tf.Session(graph=tf.Graph()) as sess:
 
     raw_text = input("hint >>> ")
     all_text = raw_text
-    b_len = len(all_text)
+    b_len = len(enc.encode(all_text))
     index = 0
     while index <= length:
-        header = all_text[-b_len:]
-        context_tokens = enc.encode(header)
+        # header = all_text[-b_len:]
+        # context_tokens = enc.encode(header)
+        context_tokens = enc.encode(all_text)[-b_len:]
         generated = 0
         for _ in range(nsamples // batch_size):
             out = sess.run(output, feed_dict={
