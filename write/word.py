@@ -71,7 +71,7 @@ def plot_graphs(history, string):
 
 # plot_graphs(history, 'acc')
 
-seed_test = "deep learning systems"
+seed_test = "We have a idea to optimize the quorum based system."
 next_words = 100
 
 for _ in range(next_words):
