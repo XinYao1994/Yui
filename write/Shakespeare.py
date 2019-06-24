@@ -6,6 +6,9 @@ from keras.optimizers import Adam
 from keras import regularizers
 import keras.utils as ku 
 import numpy as np 
+import tensorflow
+print(tensorflow.__version__)
+
 
 tokenizer = Tokenizer()
 data = open('./write/data/sonnets.txt').read()
@@ -36,13 +39,13 @@ model = Sequential()
 model.add(Embedding(total_words, 100, input_length=max_sequence_len-1))
 model.add(Bidirectional(LSTM(150, return_sequences=True)))
 model.add(Dropout(0.2))
-model.add(Bidirectional(LSTM(100)))
+model.add(LSTM(100))
 '''
 model.add(Dense(total_words, input_dim=total_words,
                 kernel_regularizer=regularizers.l2(0.01),
                 activity_regularizer=regularizers.l1(0.01)))
 '''
-model.add(Dense(total_words/2, activation='relu', kernel_regularizer=regularizers.l2(0.01)))
+model.add(Dense((int)(total_words/2), activation='relu', kernel_regularizer=regularizers.l2(0.01)))
 model.add(Dense(total_words, activation='softmax'))
 
 # adam = Adam(lr=0.01)
