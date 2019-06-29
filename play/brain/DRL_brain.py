@@ -122,6 +122,8 @@ class DeepQNetwork:
         # to have batch dimension when feed into tf placeholder
         observation = observation[np.newaxis, :]
 
+        # print(observation)
+
         if np.random.uniform() < self.epsilon:
             # forward feed the observation and get q value for every actions
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
@@ -723,4 +725,5 @@ class ArmDDPG(object):
             # do noting
             print("Fail to load old parameters")
         '''
+
 

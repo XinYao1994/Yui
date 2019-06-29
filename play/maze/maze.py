@@ -124,12 +124,20 @@ def update_DQN():
             # RL choose action based on observation
             action = RL.choose_action(observation)
 
+            # print(action)
+
             # RL take action and get next observation and reward
             observation_, reward, done = env.step(action)
 
+            # print(observation_)
+            # print(reward)
+            # print(action)
+
+            
             RL.store_transition(observation, action, reward, observation_)
 
             if (step > 200) and (step % 5 == 0):
+                raw_text = input("hint >>> ")
                 RL.learn()
 
             # swap observation

@@ -29,19 +29,19 @@ def TrySearch():
 	for i in ret.split('\n'):
 		result += i
 		if i.find('?') != -1:
-			break;
+			break
 		if i.find('7') != -1:
-			break;
-	print result
+			break
+	print(result)
 	webbrowser.open('https://www.baidu.com/s?wd='+result)
 	os.popen("adb shell rm /data/local/tmp/tmp.png") 
-	print "success"  
+	print("success")
 
 if __name__ == "__main__": 
 	#print "打印中文字符".decode('utf-8').encode('gb18030')
 	while True:
 		TrySearch()
-		p = raw_input();
+		p = raw_input()
 
 
 
