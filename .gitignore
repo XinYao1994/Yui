@@ -10,6 +10,7 @@ invest/bitcoin/data/*
 tensorboard/
 write/model/*
 write/data/*
+watch/data/*
 # Distribution / packaging
 .Python
 build/
