@@ -125,7 +125,7 @@ model = keras.Sequential([
     keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length),
     keras.layers.GlobalAveragePooling1D(),
     keras.layers.Dense(24, activation='relu'),
-    keras.layers.Dense(6, activation='sigmoid')
+    keras.layers.Dense(6, activation='softmax')
 ])
 '''
 model = keras.Sequential([
