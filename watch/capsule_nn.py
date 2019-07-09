@@ -166,7 +166,6 @@ x = Reshape((-1, 128))(x)
 capsule = Capsule(10, 16, 3, True)(x)
 output = Lambda(lambda z: K.sqrt(K.sum(K.square(z), 2)))(capsule)
 model = Model(inputs=input_image, outputs=output)
-
 # we use a margin loss
 model.compile(loss=margin_loss, optimizer='adam', metrics=['accuracy'])
 model.summary()
