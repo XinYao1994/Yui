@@ -7,7 +7,7 @@ from keras import backend as K
 from keras.layers import Layer
 from keras import activations
 from keras import utils
-from keras.datasets import cifar10
+from keras.datasets import cifar10, cifar100
 from keras.models import Model
 from keras.layers import *
 from keras.preprocessing.image import ImageDataGenerator
@@ -133,9 +133,9 @@ class Capsule(Layer):
 
 
 batch_size = 128
-num_classes = 10
+num_classes = 100
 epochs = 100
-(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+(x_train, y_train), (x_test, y_test) = cifar100.load_data()
 
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
@@ -162,7 +162,9 @@ the length of Capsule is the proba,
 so the problem becomes a 10 two-classification problem.
 """
 
+
 x = Reshape((-1, 128))(x)
+
 capsule = Capsule(10, 16, 3, True)(x)
 output = Lambda(lambda z: K.sqrt(K.sum(K.square(z), 2)))(capsule)
 model = Model(inputs=input_image, outputs=output)
@@ -171,8 +173,9 @@ model = Model(inputs=input_image, outputs=output)
 model.compile(loss=margin_loss, optimizer='adam', metrics=['accuracy'])
 model.summary()
 
+exit()
 # we can compare the performance with or without data augmentation
-data_augmentation = True
+data_augmentation = False
 
 if not data_augmentation:
     print('Not using data augmentation.')
