@@ -1,5 +1,4 @@
-from keras.applications.resnet50 import ResNet50
-from keras.applications.densenet import DenseNet201
+from keras.applications.resnet50 import ResNet50, preprocess_input
 import keras
 from keras import models
 from keras import layers
@@ -10,7 +9,6 @@ from keras.models import load_model
 from keras.datasets import cifar10
 from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
-from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras import backend as K
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,7 +25,7 @@ num_classes = 10
 epochs = 100
 Iterations = 64000
 
-conv_base = DenseNet201(weights=None, include_top=False, input_shape=(32, 32, 3))
+conv_base = ResNet50(weights='imagenet', include_top=False, input_shape=(200, 200, 3))
 
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 print('x_train shape:', x_train.shape)
@@ -41,9 +39,9 @@ y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
 model = models.Sequential()
-#model.add(layers.UpSampling2D((2,2)))
-#model.add(layers.UpSampling2D((2,2)))
-#model.add(layers.UpSampling2D((2,2)))
+model.add(layers.UpSampling2D((2,2)))
+model.add(layers.UpSampling2D((2,2)))
+model.add(layers.UpSampling2D((2,2)))
 model.add(conv_base)
 model.add(layers.Flatten())
 model.add(layers.BatchNormalization())
@@ -62,7 +60,7 @@ opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
 model.compile(loss='categorical_crossentropy',
               optimizer=opt,
               metrics=['accuracy'])
-'''
+
 datagen = ImageDataGenerator(rescale = 1./255.,
                             rotation_range = 40,
                             width_shift_range = 0.2,
@@ -70,46 +68,32 @@ datagen = ImageDataGenerator(rescale = 1./255.,
                             shear_range = 0.2,
                             zoom_range = 0.2,
                             horizontal_flip = True)
-'''
-'''
-datagen = ImageDataGenerator()
+
 datagen.fit(x_train)
 # train_data = datagen.flow(x_train, y_train, batch_size=batch_size)
-train_data = datagen.flow(x_train, y_train, batch_size=batch_size)
+train_data = datagen.flow(x_train, y_train, batch_size=len(x_train))
 
+val_data = datagen.flow(x_test, y_test, batch_size=len(x_test))
 iter_ = 0
 for x_train_, y_train_ in train_data:
-    iter_ = iter_ + 1
+    x_test_, y_test_ = next(val_data)
     if iter_ % 100 == 0:
         model.fit(x_train_, y_train_,
             batch_size=batch_size,
-            validation_data=(x_test, y_test))
+            validation_data=(x_test_, y_test_))
         continue
     model.fit(x_train_, y_train_,
-        batch_size=batch_size, version = 0,
-        validation_data=(x_test, y_test))
+        batch_size=batch_size,
+        validation_data=(x_test_, y_test_))
+    iter_ = iter_ + 1
     if iter >= Iterations:
         break
 
 scores = model.evaluate(x_test, y_test, verbose=1)
 print('Test loss:', scores[0])
 print('Test accuracy:', scores[1])
-'''
-def lr_schedule(epoch):
-    lr = 1e-1
-    if epoch > 180:
-        lr *= 0.5e-3
-    elif epoch > 160:
-        lr *= 1e-3
-    elif epoch > 120:
-        lr *= 1e-2
-    elif epoch > 80:
-        lr *= 1e-1
-    print('Learning rate: ', lr)
-    return lr
 
-history = model.fit(x_train, y_train, epochs=200, batch_size=batch_size, 
-                    validation_data=(x_test, y_test), callbacks=[LearningRateScheduler(lr_schedule)])
+# history = model.fit(x_train, y_train, epochs=5, batch_size=batch_size, validation_data=(x_test, y_test))
 '''
 from __future__ import print_function
 import keras
