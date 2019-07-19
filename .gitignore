@@ -11,6 +11,7 @@ tensorboard/
 write/model/*
 write/data/*
 watch/data/*
+speak/data/*
 # Distribution / packaging
 .Python
 build/
