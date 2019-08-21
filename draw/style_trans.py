@@ -23,6 +23,7 @@ loader = transforms.Compose([
     transforms.Resize(imsize),  # scale imported image
     transforms.ToTensor()])  # transform it into a torch tensor
 
+
 def image_loader(img_path):
     img = Image.open(img_path).convert('RGB')
     img = img.resize((imsize, imsize))
@@ -30,10 +31,13 @@ def image_loader(img_path):
     img = img.unsqueeze(0)
     return img
 
-def image_shower(img):
+def image_shower(img, img_path):
     img = img.squeeze(0)
     img = transforms.ToPILImage()(img)
-    img.show()
+    img = img.resize(Image.open(img_path).size)
+    img.save(img_path + "after", "JPEG")
+    # img.show()
+
 
 # plt.figure()
 # imshow(style_img, title='Style Image')
@@ -95,7 +99,7 @@ style_layers_default = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']
 def get_style_model_and_loss(style_img,
                              content_img,
                              cnn=cnn,
-                             style_weight=1000,
+                             style_weight=1200,
                              content_weight=1,
                              content_layers=content_layers_default,
                              style_layers=style_layers_default):
@@ -187,17 +191,19 @@ def run_style_transfer(content_img, style_img, input_img, num_epoches=300):
 
 from torch.autograd import Variable
 
-style_img = image_loader(dirs_+"126.jpg")
+# style_img = image_loader(dirs_+"152.jpg")
+# style_img = image_loader(dirs_+"../../arts.png")
+style_img = image_loader(dirs_+"../../arts2.jpg")
 style_img = Variable(style_img).to(device)
-content_img = image_loader("./watch/data/cats_and_dogs_filtered/train/cats/cat.34.jpg")
+content_img = image_loader("./watch/data/20190726123116.jpg")
+# content_img = image_loader("./watch/data/20190726123139.jpg")
 content_img = Variable(content_img).to(device)
 
 input_img = content_img.clone()
 
-out = run_style_transfer(content_img, style_img, input_img, num_epoches=300)
+out = run_style_transfer(content_img, style_img, input_img, num_epoches=400)
 
-image_shower(out.cpu())
-
+image_shower(out.cpu(), "./watch/data/20190726123116.jpg")
 
 
 

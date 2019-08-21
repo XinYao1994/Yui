@@ -16,7 +16,7 @@ try:
 except ImportError:
     print('No import')
 
-model_name='345M'
+model_name='774M'
 seed=None
 nsamples=1
 batch_size=1

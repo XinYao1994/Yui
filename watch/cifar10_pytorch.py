@@ -11,6 +11,7 @@ import torchvision.transforms as transforms
 import os
 import argparse
 
+import numpy as np 
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -75,7 +76,7 @@ if args.resume:
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
-
+# model_parameters = filter(lambda p: p.requires_grad, net.parameters())
 # Training
 def train(epoch):
     print('\nEpoch: %d' % epoch)
@@ -89,6 +90,39 @@ def train(epoch):
         outputs = net(inputs)
         loss = criterion(outputs, targets)
         loss.backward()
+
+        vals = []
+        model_parameters = filter(lambda p: p.requires_grad, net.parameters())
+        for w in model_parameters:
+            vals.extend(list(w.grad.data.cpu().numpy().flatten()))
+            # print(w.grad.data.cpu().numpy().flatten())
+            # print(w.grad.data.cpu().numpy().shape)
+        
+        # print(vals)
+        # print([w.grad.data.cpu().numpy().flatten() for w in model_parameters])
+        # print(list(np.array([w.grad.data.cpu().numpy().flatten() for w in model_parameters]).flatten()))
+        # exit()
+
+        model_parameters = filter(lambda p: p.requires_grad, net.parameters())
+        trainable_count = sum([np.prod(p.size()) for p in model_parameters])
+        vals = list(range(trainable_count))
+        print(vals)
+        p_index = 0
+        model_parameters = filter(lambda p: p.requires_grad, net.parameters())
+        for w in model_parameters:
+            shape_ = w.size()
+            print(shape_)
+            print(np.prod(shape_))
+            print(vals[p_index:p_index+np.prod(shape_)])
+            w.grad.data = torch.from_numpy(np.array(vals[p_index:p_index+np.prod(shape_)]).reshape(shape_)).float().to(device)
+            p_index = p_index+np.prod(shape_)
+        
+        vals = []
+        for w in model_parameters:
+            vals.extend(list(w.grad.data.cpu().numpy().flatten()))
+        
+        print(vals)
+        exit()
         optimizer.step()
 
         train_loss += loss.item()
