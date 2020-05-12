@@ -54,16 +54,22 @@ class Booking(object):
             #     print(i)
             # print("1111111111111111111111111111111")
             sels= self.driver.find_by_css('span[class=selection]')
-            teacher = "Andrew Petker\r"
+            # teacher = "Andrew Petker\r\n"
             sels[3].click()
-            sels[3].find_by_css('span[class=select2-selection_rendered]').first.fill(teacher)
-            # sleep(1)
+            # sels[3].find_by_css('span[class=select2-selection__rendered]').first.fill(teacher)
+            # self.driver.find_by_css('input[class=select2-search__field]').first.fill(teacher)
+            self.driver.find_by_text('Andrew Petker').first.click()
+            sleep(1)
+            sels[5].click()
+            self.driver.find_by_text('程度2').first.click()
+            sleep(1)
             # sels[3].click()
             # sels[5].click()
             # sels[5].click()
             # self.driver.find_by_id('filter-2').first.select(707)
             # self.driver.find_by_id('filter-4').first.select(4)
-            # self.driver.find_by_text('候补名单').click()
+            yoga_class = self.driver.find_by_text('候补名单') # .click()
+            yoga_class[1].click()
             exit()
             # book noon and afternoon
 
