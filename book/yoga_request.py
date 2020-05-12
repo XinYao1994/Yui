@@ -46,6 +46,38 @@ class Booking(object):
         # print(f"statusCode = {response.data}")
         # print(response.content)
 
+    def book_yoga(self):
+        self.book_url = "https://pure360-api.pure-international.com/api/v3/booking"
+        self.x_jwt_token = ""
+        userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36"
+        header = {
+            # "accept": "application/json, text/javascript, */*; q=0.01", 
+            # "accept-encoding": "gzip, deflate, br", 
+            # "accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7", 
+            # "content-type": "application/json; charset=UTF-8",
+            "origin": "https://pure360.pure-yoga.com",
+            "referer": self.url,
+            # "sec-fetch-dest": "empty",
+            # "sec-fetch-mode": "cors",
+            # "sec-fetch-site": "cross-site",
+            "user-agent": userAgent,
+            "x-date": self.x_date,
+            "x-jwt-token": self.x_jwt_token,
+            "x-token": self.x_token,
+        }
+        payload = {
+            "book_type": 2,
+            "booked_from": "WEB",
+            "class_id": 104391, # class_id
+            "language_id": 3,
+            "region_id": 1,
+        }
+        response = self.sess.post(self.login_url, data=payload, headers = header)
+        # print(f"statusCode = {response.status_code}")
+        # print(f"text = {response.text}")
+        # print(f"statusCode = {response.data}")
+        # print(response.content)
+
     def access(self, url):
         userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36"
         header = {
@@ -76,7 +108,6 @@ class Booking(object):
         self.sess = requests.Session()
         self.access(self.url) # 
         self.login_yoga()
-
 
 if __name__ == '__main__':
     # URL
