@@ -36,7 +36,7 @@ class Booking(object):
         yoga_class_table = self.driver.find_by_id('schedule-list')
         print(len(yoga_class_table))
         # 
-        yoga_class = yoga_class_table[0].find_by_xpath("//tr[@data-time=\"21:00\"]")
+        yoga_class = yoga_class_table[0].find_by_xpath("//tr[@data-time=\"20:30\"]")
         print(len(yoga_class))
         yoga_days = yoga_class[0].find_by_tag("td")
         print(len(yoga_days))
@@ -45,11 +45,11 @@ class Booking(object):
         try:
             yoga_book[0].click()
         except Exception:
-            yoga_class = yoga_class_table[0].find_by_xpath("//tr[@data-time=\"21:00\"]")
+            yoga_class = yoga_class_table[0].find_by_xpath("//tr[@data-time=\"20:30\"]")
             print(len(yoga_class))
             yoga_days = yoga_class[0].find_by_tag("td")
             print(len(yoga_days))
-            yoga_book = yoga_days[4].find_by_tag("button")
+            yoga_book = yoga_days[5].find_by_tag("button")
             print(len(yoga_book))
             yoga_book[0].click()
             yoga_book[1].click()
