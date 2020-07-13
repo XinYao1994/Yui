@@ -23,8 +23,18 @@ space_h = size * 20
 block_range = [0.1, 0.9 - space_h]
 
 class FlapBrid(object):
+    '''
     def __init__(self):
-        self.gui = ti.GUI("mirai", res = (image_w, image_h), background_color=0x201840)
+        self.blocks = ti.Vector(4, ti.f32, shape=(block_count))
+        self.action_space = ['s', 'd'] # "u"
+        self.n_actions = len(self.action_space)
+        self.n_features = 2
+        self._build_flapbrid()
+    '''
+
+    def __init__(self, RENDER=True):
+        if RENDER:
+            self.gui = ti.GUI("mirai", res = (image_w, image_h), background_color=0x201840)
         self.blocks = ti.Vector(4, ti.f32, shape=(block_count))
         self.action_space = ['s', 'd'] # "u"
         self.n_actions = len(self.action_space)
@@ -48,6 +58,7 @@ class FlapBrid(object):
             self.blocks[idx][2] = 1.0 + 0.33 * idx
 
     def reset(self):
+        self.op = 0
         self.pos = [0.3, 0.5]
         self.speed = 0.0
         self.score = 0
@@ -65,7 +76,6 @@ class FlapBrid(object):
         panity = 1
         if action == 1: # self.gui.get_event((ti.GUI.PRESS, ti.GUI.UP))
             self.speed += a
-            panity = 2500
         if self.speed > 0.1:
             self.speed = 0.1
         if self.speed < -0.1:
@@ -79,12 +89,13 @@ class FlapBrid(object):
                 break
         state_ = np.array([self.pos[0] - self.blocks[idx][2], self.pos[1] - 0.5*self.blocks[idx][1] - 0.5*self.blocks[idx][0]])
         dis_ = (state_[0]**2 + state_[1]**2)**0.5
-
+        if state_[1] > 0:
+            panity = 2500
         if self.check():
-            reward = -self.score - dis_ * panity
+            reward = -50 - self.score - math.log(1/(dis_*panity))
             done = True
         else:
-            reward = 10 - dis_ * panity
+            reward = 10 + math.log(1/(dis_*panity))
             done = False
         return state_, reward, done
 

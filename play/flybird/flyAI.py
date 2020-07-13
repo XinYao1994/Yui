@@ -12,29 +12,34 @@ try:
 except ImportError:
     print('No import')
 
-RENDER = False
+RENDER = True
 
 def update_DQN(RL, env):
     step = 0
     while True: #for episode in range(300):
         state = env.reset()
+        reward = 0
+        i = 0
         while True:
             # fresh env
             if RENDER:
                 env.render()
             action = RL.choose_action(state)
-            state_, reward, done = env.step(action)
+            state_, reward_, done = env.step(action)
+            print(reward_)
             RL.store_transition(state, action, reward, state_)
             if (step > 50) and (step % 5 == 0): # 200
                 RL.learn()
             state = state_
+            reward += reward_
             if done:
-                print(env.score)
+                print(step, i, reward)
                 break
             step += 1
+            i += 1
 
 if __name__ == "__main__":
-    env = FlapBrid() 
+    env = FlapBrid(RENDER) 
     RL = DeepQNetwork(env.n_actions, env.n_features,
                       learning_rate=0.01,
                       reward_decay=0.9,
