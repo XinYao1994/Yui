@@ -34,6 +34,10 @@ a_bound = env.action_space.high
 
 ddpg = DDPG(a_dim, s_dim, a_bound)
 
+print(a_bound)
+print(s_dim)
+print(a_dim)
+
 var = 3  # control exploration
 t1 = time.time()
 for i in range(MAX_EPISODES):

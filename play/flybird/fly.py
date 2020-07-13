@@ -21,6 +21,7 @@ def CreateABlock(idx):
     _block[0] = t1
     _block[1] = t1 + space_h
     _block[2] = 1.0
+    _block[3] = 0.0
 
 def check():
     if pos[1] < -size or pos[1] > 1 + size:
@@ -37,7 +38,7 @@ def MapMove():
         global score
         _block = blocks[idx]
         _block[2] += map_speed
-        if _block[2] + block_w < pos[0] - size: # and
+        if _block[2] + block_w < pos[0] - size and _block[3] != -1: # 
             score += 1
             _block[3] = -1
         if _block[2]  < -block_w:
