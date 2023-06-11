@@ -147,3 +147,4 @@ class ActionInterface():
 
     def __hash__(self):
         raise NotImplementedError()
+    

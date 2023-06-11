@@ -98,7 +98,9 @@ import os
 import sys
 from copy import deepcopy
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+import sys
+sys.path.append("D:\\WorkSpace\\Yui")
+    
 from core.brain.mcts import mcts
 
 class mctsAI(randomAI):
